@@ -62,8 +62,8 @@ add_executable(main
 	utils/shader.hpp
 	utils/controls.cpp
 	utils/controls.hpp
-	# utils/texture.cpp
-	# utils/texture.hpp
+	utils/texture.cpp
+	utils/texture.hpp
 	utils/objloader.cpp
 	utils/objloader.hpp
 	# utils/vboindexer.cpp
@@ -71,8 +71,6 @@ add_executable(main
 	# utils/text2D.hpp
 	# utils/text2D.cpp
 	
-	TransformVertexShader.vertexshader
-    TextureFragmentShader.fragmentshader
 )
 target_link_libraries(main
 	${ALL_LIBS}
