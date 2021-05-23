@@ -3,6 +3,7 @@
 extern GLFWwindow* window; // The "extern" keyword here is to access the variable "window" declared in tutorialXXX.cpp. This is a hack to keep the tutorials simple. Please avoid this.
 
 #include <stdio.h>
+#include <iostream>
 
 // Include GLM
 #include <glm/glm.hpp>
@@ -24,7 +25,7 @@ glm::mat4 getProjectionMatrix(){
 
 
 // Initial position : on +Z
-glm::vec3 position = glm::vec3( 0, 0, 30); 
+glm::vec3 position = glm::vec3( 0, 0, 18); 
 // Initial horizontal angle : toward -Z
 float horizontalAngle = 0.0f;
 // Initial vertical angle : none
@@ -35,25 +36,19 @@ float initialFoV = 45.0f;
 float speed = 3.0f; // 3 units / second
 float mouseSpeed = 0.025f;
 
-int getTheta1(){
-	return theta1;
+// pair for translating striker
+// first element of pair gives x direction shift
+// while second element gives y direction shift
+std::pair<float, float> striker_pos{0.0f, 0.0f}, striker_neg{0.0f, 0.0f};
+std::pair<float, float> getStrikerNegTrans(){
+	return striker_neg;
+}
+std::pair<float, float> getStrikerPosTrans(){
+	return striker_pos;
 }
 
-int getTheta2(){
-	return theta2;
-}
-
-int getTheta3(){
-	return theta3;
-}
-
-int getAlpha1(){
-	return (int)horizontalAngle;
-}
-
-int getAlpha2(){
-	return (int)verticalAngle;
-}
+// striker_pos = {0, 0};
+// striker_neg = {0, 0};
 
 void computeMatricesFromInputs(){
 
@@ -104,58 +99,33 @@ void computeMatricesFromInputs(){
 
 	glm::vec3 up(0, 1, 0);
 
-	// Move forward
-	if (glfwGetKey( window, GLFW_KEY_UP ) == GLFW_PRESS){
-		position += direction * deltaTime * speed;
+	if (glfwGetKey( window, GLFW_KEY_UP ) == GLFW_PRESS && striker_pos.second < 3.9){
+		striker_pos.second += 0.1;
 	}
-	// Move backward
-	if (glfwGetKey( window, GLFW_KEY_DOWN ) == GLFW_PRESS){
-		position -= direction * deltaTime * speed;
+	if (glfwGetKey( window, GLFW_KEY_DOWN ) == GLFW_PRESS && striker_pos.second > -3.9){
+		striker_pos.second -= 0.1;
 	}
-	// Strafe right
-	if (glfwGetKey( window, GLFW_KEY_RIGHT ) == GLFW_PRESS){
-		position += right * deltaTime * speed;
+	if (glfwGetKey( window, GLFW_KEY_RIGHT ) == GLFW_PRESS && striker_pos.first < 3.4){
+		striker_pos.first += 0.1;
 	}
-	// Strafe left
-	if (glfwGetKey( window, GLFW_KEY_LEFT ) == GLFW_PRESS){
-		position -= right * deltaTime * speed;
+	if (glfwGetKey( window, GLFW_KEY_LEFT ) == GLFW_PRESS && striker_pos.first > -3.4){
+		striker_pos.first -= 0.1;
 	}
-	// increase theta1
-	if (glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS){
-		theta1 += 1;
-		if(theta1 > 90)
-			theta1 = 90;
+	if (glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS && striker_neg.first < 3.4){
+		striker_neg.first += 0.1;
 	}
-	// decrease theta1
-	if (glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS){
-		theta1 -= 1;
-		if(theta1 < -90)
-			theta1 = -90;
+	if (glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS && striker_neg.first > -3.4){
+		striker_neg.first -= 0.1;
 	}
-	// increase theta2
-	if (glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS){
-		theta2 += 1;
-		if(theta2 > 90)
-			theta2 = 90;
+	if (glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS && striker_neg.second < 3.9){
+		striker_neg.second += 0.1;
 	}
-	// decrease theta2
-	if (glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS){
-		theta2 -= 1;
-		if(theta2 < -90)
-			theta2 = -90;
+	if (glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS && striker_neg.second > -3.9){
+		striker_neg.second -= 0.1;
 	}
-	// increase theta3
-	if (glfwGetKey( window, GLFW_KEY_E ) == GLFW_PRESS){
-		theta3 += 1;
-		if(theta3 > 360)
-			theta3 = 360;
-	}
-	// decrease theta3
-	if (glfwGetKey( window, GLFW_KEY_Q ) == GLFW_PRESS){
-		theta3 -= 1;
-		if(theta3 < 0)
-			theta3 = 0;
-	}
+
+	// std::cout << striker_neg.first << " neg " << striker_neg.second << std::endl;
+	// std::cout << striker_pos.first << " pos " << striker_pos.second << std::endl;
 
 	float FoV = initialFoV;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
 

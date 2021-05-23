@@ -37,7 +37,7 @@ int main(){
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow( 1024, 768, "Air Hockey", NULL, NULL);
+	window = glfwCreateWindow( 1500, 1080, "Air Hockey", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
 		getchar();
@@ -62,7 +62,7 @@ int main(){
     
     // Set the mouse at the center of the screen
     glfwPollEvents();
-    glfwSetCursorPos(window, 1024/2, 768/2);
+    glfwSetCursorPos(window, 1500/2, 1080/2);
 
 	// Dark blue background
 	glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
@@ -245,16 +245,6 @@ int main(){
 			(void*)0            // array buffer offset
 		);
 
-		// glEnableVertexAttribArray(1);
-		// glBindBuffer(GL_ARRAY_BUFFER, lowercolorbuffer);
-		// glVertexAttribPointer(
-		// 	1,                  // attribute
-		// 	3,                  // size
-		// 	GL_FLOAT,           // type
-		// 	GL_FALSE,           // normalized?
-		// 	0,                  // stride
-		// 	(void*)0            // array buffer offset
-		// );
 		// glPushMatrix();
 		glDrawArrays(GL_TRIANGLES, 0, table_vertices.size() );
 		// glPopMatrix();
@@ -286,16 +276,6 @@ int main(){
 			(void*)0            // array buffer offset
 		);
 
-		// glEnableVertexAttribArray(1);
-		// glBindBuffer(GL_ARRAY_BUFFER, lowercolorbuffer);
-		// glVertexAttribPointer(
-		// 	1,                  // attribute
-		// 	3,                  // size
-		// 	GL_FLOAT,           // type
-		// 	GL_FALSE,           // normalized?
-		// 	0,                  // stride
-		// 	(void*)0            // array buffer offset
-		// );
 		// glPushMatrix();
 		glDrawArrays(GL_TRIANGLES, 0, table_parts_vertices.size() );
 		// glPopMatrix();
@@ -329,6 +309,13 @@ int main(){
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 
+		std::pair<float, float> striker_trans = getStrikerNegTrans();
+		ModelMatrix = glm::mat4(1.0);
+		glm::mat4 myTranslateMatrix = glm::translate(glm::mat4(), glm::vec3(striker_trans.first, striker_trans.second, 0));
+		ModelMatrix = myTranslateMatrix * ModelMatrix;
+		MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
         glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, striker_neg_vertex_buffer);
 		glVertexAttribPointer(
@@ -356,6 +343,13 @@ int main(){
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
+
+		striker_trans = getStrikerPosTrans();
+		ModelMatrix = glm::mat4(1.0);
+		myTranslateMatrix = glm::translate(glm::mat4(), glm::vec3(striker_trans.first, striker_trans.second, 0));
+		ModelMatrix = myTranslateMatrix * ModelMatrix;
+		MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
         glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, striker_pos_vertex_buffer);
