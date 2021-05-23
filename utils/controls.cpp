@@ -39,12 +39,24 @@ float mouseSpeed = 0.025f;
 // pair for translating striker
 // first element of pair gives x direction shift
 // while second element gives y direction shift
-std::pair<float, float> striker_pos{0.0f, 0.0f}, striker_neg{0.0f, 0.0f};
+std::pair<float, float> striker_pos{0.0f, 0.0f}, striker_neg{0.0f, 0.0f}, puck{0.0f, 0.0f};
+std::pair<float, float> puck_direction{0.0f, 0.0f};
+float puck_speed = 0.07;
 std::pair<float, float> getStrikerNegTrans(){
 	return striker_neg;
 }
 std::pair<float, float> getStrikerPosTrans(){
 	return striker_pos;
+}
+std::pair<float, float> getPuckTrans(){
+	return puck;
+}
+
+float distance(std::pair<float, float> &a, std::pair<float, float> &b){
+	float x = abs(a.first - b.first);
+	float y = abs(a.second - b.second);
+	float d = sqrt(x * x + y * y);
+	return d;
 }
 
 // striker_pos = {0, 0};
@@ -84,6 +96,7 @@ void computeMatricesFromInputs(){
 	// 	sin(verticalAngle),
 	// 	cos(verticalAngle) * cos(horizontalAngle)
 	// );
+	
 
 	glm::vec3 direction(-0.706741, -0.706083, -0.044317);
 	
@@ -126,6 +139,38 @@ void computeMatricesFromInputs(){
 
 	// std::cout << striker_neg.first << " neg " << striker_neg.second << std::endl;
 	// std::cout << striker_pos.first << " pos " << striker_pos.second << std::endl;
+	std::cout << puck.first << " puck " << puck.second << std::endl;
+	
+	// striker's position keeping table center as origin
+	std::pair<float, float> striker_neg_loc, striker_pos_loc;
+	striker_neg_loc = {striker_neg.first - 4.0, striker_neg.second};
+	striker_pos_loc = {striker_pos.first + 4.0, striker_pos.second};
+
+	if(distance(striker_neg_loc, puck) < 0.9 && distance(striker_pos_loc, puck) < 0.9){
+		std::cout << "BOTH" << std::endl;
+		puck_direction.first = 2 * puck.first - striker_neg_loc.first - striker_pos_loc.first;
+		puck_direction.second = 2 * puck.second - striker_neg_loc.second - striker_pos_loc.second;
+	}
+	else if(distance(striker_neg_loc, puck) < 0.9){
+		std::cout << "neg" << std::endl;
+		puck_direction.first = puck.first - striker_neg_loc.first;
+		puck_direction.second = puck.second - striker_neg_loc.second;
+	}
+	else if(distance(striker_pos_loc, puck) < 0.9){
+		std::cout << "pos" << std::endl;
+		puck_direction.first = puck.first - striker_pos_loc.first;
+		puck_direction.second = puck.second - striker_pos_loc.second;
+	}
+
+	std::pair<float, float> origin{0.0f, 0.0f};
+	float mag_puck_direction = distance(puck_direction, origin);
+	if(mag_puck_direction != 0.0f){
+		puck_direction.first /= mag_puck_direction;
+		puck_direction.second /= mag_puck_direction;
+	}
+
+	puck.first += puck_speed * puck_direction.first;
+	puck.second += puck_speed * puck_direction.second;
 
 	float FoV = initialFoV;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
 

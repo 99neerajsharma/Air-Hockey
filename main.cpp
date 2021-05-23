@@ -282,6 +282,13 @@ int main(){
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 
+		std::pair<float, float> puck_trans = getPuckTrans();
+		ModelMatrix = glm::mat4(1.0);
+		glm::mat4 myTranslateMatrix = glm::translate(glm::mat4(), glm::vec3(puck_trans.first, puck_trans.second, 0));
+		ModelMatrix = myTranslateMatrix * ModelMatrix;
+		MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
         glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, puck_vertex_buffer);
 		glVertexAttribPointer(
@@ -311,7 +318,7 @@ int main(){
 
 		std::pair<float, float> striker_trans = getStrikerNegTrans();
 		ModelMatrix = glm::mat4(1.0);
-		glm::mat4 myTranslateMatrix = glm::translate(glm::mat4(), glm::vec3(striker_trans.first, striker_trans.second, 0));
+		myTranslateMatrix = glm::translate(glm::mat4(), glm::vec3(striker_trans.first, striker_trans.second, 0));
 		ModelMatrix = myTranslateMatrix * ModelMatrix;
 		MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
