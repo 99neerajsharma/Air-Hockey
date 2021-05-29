@@ -65,7 +65,7 @@ int main(){
     glfwSetCursorPos(window, 1500/2, 1080/2);
 
 	// Dark blue background
-	glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
+	glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
 
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
@@ -106,8 +106,8 @@ int main(){
 	std::vector<glm::vec2> striker_pos_uvs;
 	std::vector<glm::vec3> striker_pos_normals;
     
-    bool res = loadOBJ("objects/table.obj", table_vertices, table_uvs, table_normals);
-    res = loadOBJ("objects/table-parts.obj", table_parts_vertices, table_parts_uvs, table_parts_normals);
+    bool res = loadOBJ("objects/table-new.obj", table_vertices, table_uvs, table_normals);
+    res = loadOBJ("objects/table-parts-new.obj", table_parts_vertices, table_parts_uvs, table_parts_normals);
     res = loadOBJ("objects/puck.obj", puck_vertices, puck_uvs, puck_normals);
     res = loadOBJ("objects/striker-4.obj", striker_neg_vertices, striker_neg_uvs, striker_neg_normals);
     res = loadOBJ("objects/striker4.obj", striker_pos_vertices, striker_pos_uvs, striker_pos_normals);
@@ -140,9 +140,9 @@ int main(){
 
 	GLfloat table_parts_color_buffer_data[table_parts_vertices_size*3];
 	for (int v = 0; v < table_parts_vertices_size ; v++){
-		table_parts_color_buffer_data[3*v+0] = 1.0;
-		table_parts_color_buffer_data[3*v+1] = 1.0;
-		table_parts_color_buffer_data[3*v+2] = 1.0;
+		table_parts_color_buffer_data[3*v+0] = 0.7;
+		table_parts_color_buffer_data[3*v+1] = 0.7;
+		table_parts_color_buffer_data[3*v+2] = 0.7;
 	}
 
     GLuint table_vertex_buffer;
