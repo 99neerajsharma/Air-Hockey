@@ -44,6 +44,8 @@ std::pair<float, float> puck_direction{0.0f, 0.0f};
 float puck_speed = 0.11;
 int greenGoals = 0, redGoals = 0;
 int gameStatus = 0;
+int goalFrames = 0;
+
 std::pair<float, float> getStrikerNegTrans(){
 	return striker_neg;
 }
@@ -98,11 +100,11 @@ void reflectPuckIfWall() {
 			glm::vec2(0, 1));
 	}
 
-	else if(puck.first > 7.50f) {
-		if((puck.second > -1.83f) && (puck.second < 1.83f))
+	else if(puck.first > 7.60f) {
+		if((puck.second > -1.3f) && (puck.second < 1.3f))
 		{
 			greenGoals++;
-			resetObjects();
+			goalFrames = 10;
 			return;
 		}
 
@@ -112,11 +114,11 @@ void reflectPuckIfWall() {
 			glm::vec2(-1, 0));
 	}
 
-	else if(puck.first < -7.50f) {
-		if((puck.second > -1.83f) && (puck.second < 1.83f))
+	else if(puck.first < -7.60f) {
+		if((puck.second > -1.3f) && (puck.second < 1.3f))
 		{
 			redGoals++;
-			resetObjects();
+			goalFrames = 10;
 			return;
 		}
 
@@ -246,7 +248,9 @@ void computeMatricesFromInputs(){
 		puck_direction.second = puck.second - striker_pos_loc.second;
 	}
 
-	reflectPuckIfWall();
+	if(goalFrames == 0)
+		reflectPuckIfWall();
+
 	std::pair<float, float> origin{0.0f, 0.0f};
 	float mag_puck_direction = distance(puck_direction, origin);
 	if(mag_puck_direction != 0.0f){
@@ -254,10 +258,16 @@ void computeMatricesFromInputs(){
 		puck_direction.second /= mag_puck_direction;
 	}
 
-	
-
 	puck.first += puck_speed * puck_direction.first;
 	puck.second += puck_speed * puck_direction.second;
+	
+	if(goalFrames > 0) {
+		goalFrames--;
+		
+		if(goalFrames == 0) {
+			resetObjects();
+		}
+	}
 
 	float FoV = initialFoV;// - 5 * glfwGetMouseWheel(); // Now GLFW 3 requires setting up a callback for this. It's a bit too complicated for this beginner's tutorial, so it's disabled instead.
 
