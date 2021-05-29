@@ -164,14 +164,14 @@ void computeMatricesFromInputs(){
 		verticalAngle = -90;
 
 	// Direction : Spherical coordinates to Cartesian coordinates conversion
-	// glm::vec3 direction(
-	// 	cos(verticalAngle) * sin(horizontalAngle), 
-	// 	sin(verticalAngle),
-	// 	cos(verticalAngle) * cos(horizontalAngle)
-	// );
+	glm::vec3 direction(
+		cos(verticalAngle) * sin(horizontalAngle), 
+		sin(verticalAngle),
+		cos(verticalAngle) * cos(horizontalAngle)
+	);
 	
 
-	glm::vec3 direction(-0.706741, -0.706083, -0.044317);
+	// glm::vec3 direction(-0.706741, -0.706083, -0.044317);
 	
 	// Right vector
 	glm::vec3 right = glm::vec3(
@@ -181,9 +181,9 @@ void computeMatricesFromInputs(){
 	);
 	
 	// Up vector
-	// glm::vec3 up = glm::cross( right, direction );
+	glm::vec3 up = glm::cross( right, direction );
 
-	glm::vec3 up(0, 1, 0);
+	// glm::vec3 up(0, 1, 0);
 	std::pair<float, float> striker_pos_old, striker_neg_old;
 	striker_pos_old = striker_pos;
 	striker_neg_old = striker_neg;
@@ -276,7 +276,7 @@ void computeMatricesFromInputs(){
 
 	// Camera matrix
 	ViewMatrix       = glm::lookAt(
-								position,           // Camera is here
+								18.0f * direction,           // Camera is here
 								glm::vec3(0,0,0), // and looks here : at the same position, plus "direction"
 								up                  // Head is up (set to 0,-1,0 to look upside-down)
 						   );
