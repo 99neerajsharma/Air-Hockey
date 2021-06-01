@@ -89,6 +89,14 @@ int main(){
 	// Get a handle for our "MVP" uniform
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 	GLuint MatrixIDTexture = glGetUniformLocation(programIDTexture, "MVP");
+	GLuint ViewMatrixID = glGetUniformLocation(programID, "V");
+	GLuint ViewMatrixIDTexture = glGetUniformLocation(programIDTexture, "V");
+	GLuint ModelMatrixID = glGetUniformLocation(programID, "M");
+	GLuint ModelMatrixIDTexture = glGetUniformLocation(programIDTexture, "M");
+	GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
+	GLuint LightIDTexture = glGetUniformLocation(programIDTexture, "LightPosition_worldspace");
+
+
 
     std::vector<glm::vec3> table_vertices;
 	std::vector<glm::vec2> table_uvs;
@@ -150,30 +158,55 @@ int main(){
 	glBindBuffer(GL_ARRAY_BUFFER, table_vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, table_vertices.size() * sizeof(glm::vec3), &table_vertices[0], GL_STATIC_DRAW);
 
-	GLuint table_uvs_vertex_buffer;
-	glGenBuffers(1, &table_uvs_vertex_buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, table_uvs_vertex_buffer);
+	GLuint table_uvs_buffer;
+	glGenBuffers(1, &table_uvs_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, table_uvs_buffer);
 	glBufferData(GL_ARRAY_BUFFER, table_uvs.size() * sizeof(glm::vec2), &table_uvs[0], GL_STATIC_DRAW);
+
+	GLuint table_normal_buffer;
+	glGenBuffers(1, &table_normal_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, table_normal_buffer);
+	glBufferData(GL_ARRAY_BUFFER, table_normals.size() * sizeof(glm::vec3), &table_normals[0], GL_STATIC_DRAW);
 
     GLuint table_parts_vertex_buffer;
 	glGenBuffers(1, &table_parts_vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, table_parts_vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, table_parts_vertices.size() * sizeof(glm::vec3), &table_parts_vertices[0], GL_STATIC_DRAW);
 
+	GLuint table_parts_normal_buffer;
+	glGenBuffers(1, &table_parts_normal_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, table_parts_normal_buffer);
+	glBufferData(GL_ARRAY_BUFFER, table_parts_normals.size() * sizeof(glm::vec3), &table_parts_normals[0], GL_STATIC_DRAW);
+
     GLuint puck_vertex_buffer;
 	glGenBuffers(1, &puck_vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, puck_vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, puck_vertices.size() * sizeof(glm::vec3), &puck_vertices[0], GL_STATIC_DRAW);
+
+	GLuint puck_normal_buffer;
+	glGenBuffers(1, &puck_normal_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, puck_normal_buffer);
+	glBufferData(GL_ARRAY_BUFFER, puck_normals.size() * sizeof(glm::vec3), &puck_normals[0], GL_STATIC_DRAW);
 
     GLuint striker_neg_vertex_buffer;
 	glGenBuffers(1, &striker_neg_vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, striker_neg_vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, striker_neg_vertices.size() * sizeof(glm::vec3), &striker_neg_vertices[0], GL_STATIC_DRAW);
 
+	GLuint striker_neg_normal_buffer;
+	glGenBuffers(1, &striker_neg_normal_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, striker_neg_normal_buffer);
+	glBufferData(GL_ARRAY_BUFFER, striker_neg_normals.size() * sizeof(glm::vec3), &striker_neg_normals[0], GL_STATIC_DRAW);
+
     GLuint striker_pos_vertex_buffer;
 	glGenBuffers(1, &striker_pos_vertex_buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, striker_pos_vertex_buffer);
 	glBufferData(GL_ARRAY_BUFFER, striker_pos_vertices.size() * sizeof(glm::vec3), &striker_pos_vertices[0], GL_STATIC_DRAW);
+
+	GLuint striker_pos_normal_buffer;
+	glGenBuffers(1, &striker_pos_normal_buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, striker_pos_normal_buffer);
+	glBufferData(GL_ARRAY_BUFFER, striker_pos_normals.size() * sizeof(glm::vec3), &striker_pos_normals[0], GL_STATIC_DRAW);
 
  
  
@@ -227,6 +260,11 @@ int main(){
 		// Send our transformation to the currently bound shader, 
 		// in the "MVP" uniform
 		glUniformMatrix4fv(MatrixIDTexture, 1, GL_FALSE, &MVP[0][0]);
+		glUniformMatrix4fv(ModelMatrixIDTexture, 1, GL_FALSE, &ModelMatrix[0][0]);
+		glUniformMatrix4fv(ViewMatrixIDTexture, 1, GL_FALSE, &ViewMatrix[0][0]);
+
+		glm::vec3 lightPos = glm::vec3(0,0,7);
+		glUniform3f(LightIDTexture, lightPos.x, lightPos.y, lightPos.z);
 
 		// Bind our texture in Texture Unit 0
 		glActiveTexture(GL_TEXTURE0);
@@ -246,10 +284,21 @@ int main(){
 		);
 
 		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, table_uvs_vertex_buffer);
+		glBindBuffer(GL_ARRAY_BUFFER, table_uvs_buffer);
 		glVertexAttribPointer(
 			1,                  // attribute
 			2,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
+
+		glEnableVertexAttribArray(2);
+		glBindBuffer(GL_ARRAY_BUFFER, table_normal_buffer);
+		glVertexAttribPointer(
+			2,                  // attribute
+			3,                  // size
 			GL_FLOAT,           // type
 			GL_FALSE,           // normalized?
 			0,                  // stride
@@ -261,9 +310,13 @@ int main(){
 		// glPopMatrix();
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 		
 		glUseProgram(programID);
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+		glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+		glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 
         glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, table_parts_vertex_buffer);
@@ -286,19 +339,34 @@ int main(){
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
+		glEnableVertexAttribArray(2);
+		glBindBuffer(GL_ARRAY_BUFFER, table_parts_normal_buffer);
+		glVertexAttribPointer(
+			2,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
 
 		// glPushMatrix();
 		glDrawArrays(GL_TRIANGLES, 0, table_parts_vertices.size() );
 		// glPopMatrix();
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 
 		std::pair<float, float> puck_trans = getPuckTrans();
 		ModelMatrix = glm::mat4(1.0);
 		glm::mat4 myTranslateMatrix = glm::translate(glm::mat4(), glm::vec3(puck_trans.first, puck_trans.second, 0));
 		ModelMatrix = myTranslateMatrix * ModelMatrix;
 		MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
+
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+		glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+		glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 
         glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, puck_vertex_buffer);
@@ -321,11 +389,23 @@ int main(){
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
+
+		glEnableVertexAttribArray(2);
+		glBindBuffer(GL_ARRAY_BUFFER, puck_normal_buffer);
+		glVertexAttribPointer(
+			2,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
 		// glPushMatrix();
 		glDrawArrays(GL_TRIANGLES, 0, puck_vertices.size() );
 		// glPopMatrix();
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 
 		std::pair<float, float> striker_trans = getStrikerNegTrans();
 		ModelMatrix = glm::mat4(1.0);
@@ -333,6 +413,9 @@ int main(){
 		ModelMatrix = myTranslateMatrix * ModelMatrix;
 		MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+		glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+		glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 
         glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, striker_neg_vertex_buffer);
@@ -355,12 +438,24 @@ int main(){
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
+
+		glEnableVertexAttribArray(2);
+		glBindBuffer(GL_ARRAY_BUFFER, striker_neg_normal_buffer);
+		glVertexAttribPointer(
+			2,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
 		// glPushMatrix();
 		glDrawArrays(GL_TRIANGLES, 0, striker_neg_vertices.size() );
 		// glPopMatrix();
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 
 		striker_trans = getStrikerPosTrans();
 		ModelMatrix = glm::mat4(1.0);
@@ -368,6 +463,9 @@ int main(){
 		ModelMatrix = myTranslateMatrix * ModelMatrix;
 		MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+		glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+		glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 
         glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, striker_pos_vertex_buffer);
@@ -390,6 +488,17 @@ int main(){
 			0,                  // stride
 			(void*)0            // array buffer offset
 		);
+
+		glEnableVertexAttribArray(2);
+		glBindBuffer(GL_ARRAY_BUFFER, striker_pos_normal_buffer);
+		glVertexAttribPointer(
+			2,                  // attribute
+			3,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			0,                  // stride
+			(void*)0            // array buffer offset
+		);
 		// glPushMatrix();
 		glDrawArrays(GL_TRIANGLES, 0, striker_pos_vertices.size() );
 		// glPopMatrix();
@@ -399,6 +508,7 @@ int main(){
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 
 		// Swap buffers
 		glfwSwapBuffers(window);
